@@ -14,7 +14,7 @@ void __cdecl CaptureScreen()
 		lpDDPalette->GetEntries(0, 0, 256, palette);
 		RedPalette(palette);
 
-		dx_lock_mutex();
+		lock_buf_priv();
 		bool success = CaptureHdr(hObject, 640, 480);
 		if (success)
 		{
@@ -24,11 +24,11 @@ void __cdecl CaptureScreen()
 				success = CapturePal(hObject, palette);
 			}
 		}
-		dx_unlock_mutex();
+		unlock_buf_priv();
 		CloseHandle(hObject);
 
 		if (!success)
-			DeleteFileA(FileName);
+			DeleteFile(FileName);
 
 		Sleep(300);
 		lpDDPalette->SetEntries(0, 0, 256, palette);
@@ -154,7 +154,7 @@ HANDLE __fastcall CaptureFile(char *dst_path)
 	}
 
 	sprintf(dst_path, "screen%02d.PCX", free_num);
-	return CreateFileA(dst_path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	return CreateFile(dst_path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 }
 
 void __fastcall RedPalette(PALETTEENTRY *pal)

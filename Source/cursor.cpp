@@ -9,6 +9,8 @@ int pcursmonst; // idb
 int icursW28; // idb
 void *pCursCels;
 int icursH; // weak
+
+// inv_item value
 char pcursinvitem; // weak
 int icursW; // weak
 char pcursitem; // weak
@@ -20,8 +22,8 @@ int dword_4B8CCC; // weak
 int pcurs; // idb
 
 
-/* data */
-int InvItemWidth[180] =
+/* rdata */
+const int InvItemWidth[180] =
 {
   0,
   33,
@@ -204,7 +206,7 @@ int InvItemWidth[180] =
   56,
   56
 };
-int InvItemHeight[180] =
+const int InvItemHeight[180] =
 {
   0,
   29,
@@ -428,6 +430,10 @@ void __fastcall SetCursor(int i)
 	SetICursor(i);
 }
 // 4B8C9C: using guessed type int cursH;
+
+void __fastcall NewCursor(int i) {
+	SetCursor(i);
+}
 
 void __cdecl InitLevelCursor()
 {

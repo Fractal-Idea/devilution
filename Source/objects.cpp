@@ -4,13 +4,13 @@
 
 int trapid; // weak
 int trapdir; // weak
-int pObjCels[40];
+unsigned char *pObjCels[40];
 char ObjFileList[40];
-int objectactive[127];
+int objectactive[MAXOBJECTS];
 int nobjects; // idb
 int leverid; // idb
-int objectavail[127];
-ObjectStruct object[127];
+int objectavail[MAXOBJECTS];
+ObjectStruct object[MAXOBJECTS];
 int InitObjFlag; // weak
 int numobjfiles; // weak
 
@@ -293,7 +293,7 @@ char *ObjMasterLoadList[56] =
 };
 int bxadd[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
 int byadd[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
-char *shrinestrs[26] =
+char *shrinestrs[NUM_SHRINETYPE] =
 {
   "Mysterious",
   "Hidden",
@@ -322,20 +322,20 @@ char *shrinestrs[26] =
   "Glimmering",
   "Tainted"
 };
-unsigned char shrinemin[26] =
+unsigned char shrinemin[NUM_SHRINETYPE] =
 {
 	1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
 	1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
 	1,   1,   1,   1,   1,   1
 };
-unsigned char shrinemax[26] =
+unsigned char shrinemax[NUM_SHRINETYPE] =
 {
    16,  16,  16,  16,  16,  16,  16,   8,  16,  16,
    16,  16,  16,  16,  16,  16,  16,  16,  16,  16,
    16,  16,  16,  16,  16,  16
 };
 // 0 - sp+mp, 1 - sp only, 2 - mp only
-unsigned char shrineavail[26] =
+unsigned char shrineavail[NUM_SHRINETYPE] =
 {
 	0,   0,   1,   1,   0,   0,   0,   0,   1,   0,
 	0,   0,   0,   0,   0,   0,   0,   0,   2,   0,
@@ -375,7 +375,7 @@ void __cdecl InitObjectGFX()
 	unsigned char fileload[56]; // [esp+4h] [ebp-58h]
 	char filestr[32]; // [esp+3Ch] [ebp-20h]
 
-	memset(fileload, 0, 0x38u);
+	memset(fileload, 0, sizeof(fileload));
 	if ( AllObjects[0].oload != -1 )
 	{
 		v0 = AllObjects;
@@ -415,7 +415,7 @@ void __cdecl InitObjectGFX()
 			sprintf(filestr, "Objects\\%s.CEL", v8);
 			v9 = LoadFileInMem(filestr, 0);
 			v10 = numobjfiles++;
-			pObjCels[v10] = (int)v9;
+			pObjCels[v10] = v9;
 		}
 		++v7;
 	}
@@ -467,15 +467,15 @@ void __fastcall InitRndLocObj(int min, int max, int objtype)
 	int i; // [esp+8h] [ebp-4h]
 
 	i = 0;
-	numobjs = min + random(-117, max - min);
+	numobjs = min + random(139, max - min);
 	if ( numobjs > 0 )
 	{
 		while ( 1 )
 		{
 			do
 			{
-				xp = random(-117, 80) + 16;
-				yp = random(-117, 80) + 16;
+				xp = random(139, 80) + 16;
+				yp = random(139, 80) + 16;
 			}
 			while ( !RndLocOk(xp - 1, yp - 1) );
 			if ( RndLocOk(xp, yp - 1) )
@@ -517,15 +517,15 @@ void __fastcall InitRndLocBigObj(int min, int max, int objtype)
 	int i; // [esp+8h] [ebp-4h]
 
 	i = 0;
-	numobjs = min + random(-116, max - min);
+	numobjs = min + random(140, max - min);
 	if ( numobjs > 0 )
 	{
 		while ( 1 )
 		{
 			do
 			{
-				xp = random(-116, 80) + 16;
-				yp = random(-116, 80) + 16;
+				xp = random(140, 80) + 16;
+				yp = random(140, 80) + 16;
 			}
 			while ( !RndLocOk(xp - 1, yp - 2) );
 			if ( RndLocOk(xp, yp - 2) )
@@ -572,10 +572,8 @@ void __fastcall InitRndLocObj5x5(int min, int max, int objtype)
 {
 	int v3; // esi
 	int v4; // edx
-	int v5; // ecx
 	int v6; // ebx
 	int v7; // eax
-	int v8; // ecx
 	int v9; // edi
 	int v10; // esi
 	int v11; // edx
@@ -587,9 +585,8 @@ void __fastcall InitRndLocObj5x5(int min, int max, int objtype)
 
 	v3 = min;
 	v4 = max - min;
-	_LOBYTE(min) = -117;
 	v13 = 0;
-	v6 = v3 + random(min, v4);
+	v6 = v3 + random(139, v4);
 	if ( v6 > 0 )
 	{
 		do
@@ -597,13 +594,11 @@ void __fastcall InitRndLocObj5x5(int min, int max, int objtype)
 			v14 = 0;
 			while ( 1 )
 			{
-				_LOBYTE(v5) = -117;
 				v12 = 1;
-				v7 = random(v5, 80);
-				_LOBYTE(v8) = -117;
+				v7 = random(139, 80);
 				v9 = v7 + 16;
 				v15 = -2;
-				v10 = random(v8, 80) + 16;
+				v10 = random(139, 80) + 16;
 				do
 				{
 					v16 = -2;
@@ -652,7 +647,7 @@ void __cdecl ClrAllObjects()
 		v0[23] = 0;
 		v0 += 30;
 	}
-	while ( (signed int)v0 < (signed int)&object[127]._oy );
+	while ( (signed int)v0 < (signed int)&object[MAXOBJECTS]._oy );
 	v1 = 0;
 	memset(objectactive, 0, sizeof(objectactive));
 	nobjects = 0;
@@ -661,7 +656,7 @@ void __cdecl ClrAllObjects()
 		objectavail[v1] = v1;
 		++v1;
 	}
-	while ( v1 < 127 );
+	while ( v1 < MAXOBJECTS );
 	trapdir = 0;
 	trapid = 1;
 	leverid = 1;
@@ -741,8 +736,8 @@ void __fastcall AddBookLever(int lx1, int ly1, int lx2, int ly2, int x1, int y1,
 	while ( 1 )
 	{
 		v17 = 1;
-		v9 = random(-117, 80) + 16;
-		v10 = random(-117, 80) + 16;
+		v9 = random(139, 80) + 16;
+		v10 = random(139, 80) + 16;
 		v11 = -2;
 		do
 		{
@@ -798,23 +793,23 @@ void __cdecl InitRndBarrels()
 	int v10; // [esp+Ch] [ebp-4h]
 
 	v10 = 0;
-	v0 = random(-113, 5) + 3;
+	v0 = random(143, 5) + 3;
 	if ( v0 > 0 )
 	{
 		do
 		{
 			do
 			{
-				v1 = random(-113, 80) + 16;
-				v2 = random(-113, 80) + 16;
+				v1 = random(143, 80) + 16;
+				v2 = random(143, 80) + 16;
 			}
 			while ( !RndLocOk(v1, v2) );
-			v3 = random(-113, 4);
+			v3 = random(143, 4);
 			AddObject(OBJ_BARRELEX - (v3 != 0), v1, v2);
 			v4 = 1;
 			v5 = 0;
 			v9 = 1;
-			while ( !random(-113, v5) && v4 )
+			while ( !random(143, v5) && v4 )
 			{
 				v8 = 0;
 				v4 = 0;
@@ -822,7 +817,7 @@ void __cdecl InitRndBarrels()
 				{
 					if ( v8 >= 3 )
 						break;
-					v6 = random(-113, 8);
+					v6 = random(143, 8);
 					v1 += bxadd[v6];
 					v2 += byadd[v6];
 					++v8;
@@ -831,7 +826,7 @@ void __cdecl InitRndBarrels()
 				while ( !v4 );
 				if ( v4 )
 				{
-					v7 = random(-113, 5);
+					v7 = random(143, 5);
 					AddObject(OBJ_BARRELEX - (v7 != 0), v1, v2);
 					++v9;
 				}
@@ -946,7 +941,6 @@ void __cdecl AddL2Torches()
 	int v1; // edi
 	char *v2; // ebx
 	//int v3; // eax
-	int v4; // ecx
 	int (*v5)[112]; // [esp+Ch] [ebp-Ch]
 	int v6; // [esp+10h] [ebp-8h]
 	int (*v7)[112]; // [esp+14h] [ebp-4h]
@@ -966,29 +960,25 @@ void __cdecl AddL2Torches()
 			v6 = (*v5)[0];
 			if ( (*v5)[0] == 1 )
 			{
-				_LOBYTE(v4) = -111;
-				if ( random(v4, 3) )
+				if ( random(145, 3) )
 					goto LABEL_18;
 				AddObject(OBJ_TORCHL2, v1, v0);
 			}
 			if ( v6 == 5 )
 			{
-				_LOBYTE(v4) = -111;
-				if ( random(v4, 3) )
+				if ( random(145, 3) )
 					goto LABEL_18;
 				AddObject(OBJ_TORCHR2, v1, v0);
 			}
 			if ( v6 == 37 )
 			{
-				_LOBYTE(v4) = -111;
-				if ( random(v4, 10) || *(v2 - 111) )
+				if ( random(145, 10) || *(v2 - 111) )
 					goto LABEL_18;
 				AddObject(OBJ_TORCHL, v1 - 1, v0);
 			}
 			if ( v6 == 41 )
 			{
-				_LOBYTE(v4) = -111;
-				if ( !random(v4, 10) && !*v2 )
+				if ( !random(145, 10) && !*v2 )
 					AddObject(OBJ_TORCHR, v1, v0 - 1);
 			}
 LABEL_18:
@@ -1057,12 +1047,12 @@ void __cdecl AddObjTraps()
 		v13 = (char *)dObject + v0;
 		do
 		{
-			if ( *v2 > 0 && random(-112, 100) < v15 )
+			if ( *v2 > 0 && random(144, 100) < v15 )
 			{
 				v3 = (char)(*v2 - 1);
 				if ( AllObjects[object[v3]._otype].oTrapFlag )
 				{
-					if ( random(-112, 2) )
+					if ( random(144, 2) )
 					{
 						v8 = v0 - 1;
 						for ( i = &dPiece[v16][v0-1]; !nSolidTable[*i]; i-- ) /* check dpiece */
@@ -1289,8 +1279,8 @@ void __cdecl AddStoryBooks()
 	while ( 1 )
 	{
 		y = 1;
-		v0 = random(-117, 80) + 16;
-		v1 = random(-117, 80) + 16;
+		v0 = random(139, 80) + 16;
+		v1 = random(139, 80) + 16;
 		v2 = -2;
 		do
 		{
@@ -1348,8 +1338,7 @@ void __fastcall AddHookedBodies(int freq)
 		{
 			if ( *v2 == 1 || *v2 == 2 )
 			{
-				_LOBYTE(freq) = 0;
-				if ( !random(freq, max) )
+				if ( !random(0, max) )
 				{
 					//_LOBYTE(v4) = SkipThemeRoom(x, y);
 					if ( SkipThemeRoom(x, y) )
@@ -1358,8 +1347,7 @@ void __fastcall AddHookedBodies(int freq)
 						{
 							if ( *v2 == 2 && v2[1] == 6 )
 							{
-								_LOBYTE(freq) = 0;
-								v7 = random(freq, 2);
+								v7 = random(0, 2);
 								if ( v7 )
 								{
 									if ( v7 != 1 )
@@ -1377,8 +1365,7 @@ void __fastcall AddHookedBodies(int freq)
 						}
 						else
 						{
-							_LOBYTE(freq) = 0;
-							v5 = random(freq, 3);
+							v5 = random(0, 3);
 							if ( v5 )
 							{
 								v6 = v5 - 1;
@@ -1441,8 +1428,8 @@ void __cdecl AddLazStand()
 	while ( 1 )
 	{
 		v5 = 1;
-		v0 = random(-117, 80) + 16;
-		v1 = random(-117, 80) + 16;
+		v0 = random(139, 80) + 16;
+		v1 = random(139, 80) + 16;
 		v2 = -3;
 		do
 		{
@@ -1479,7 +1466,7 @@ void __cdecl AddLazStand()
 	AddObject(OBJ_STORYCANDLE, v4, v1 + 1);
 }
 
-void __fastcall InitObjects(int a1)
+void __cdecl InitObjects()
 {
 	//int v1; // eax
 	//int v2; // eax
@@ -1496,9 +1483,8 @@ void __fastcall InitObjects(int a1)
 	char v13; // al
 	unsigned char *v14; // esi
 	//int v15; // eax
-	int v16; // [esp+0h] [ebp-4h]
+	//int v16; // [esp+0h] [ebp-4h]
 
-	v16 = a1;
 	ClrAllObjects();
 	if ( currlevel == 16 )
 	{
@@ -1556,8 +1542,6 @@ void __fastcall InitObjects(int a1)
 					else
 					{
 						v8 = QUEST_MBLINDING;
-						if ( v7 != 2 )
-							v8 = v16;
 					}
 				}
 				else
@@ -1569,10 +1553,6 @@ void __fastcall InitObjects(int a1)
 				v9 = LoadFileInMem("Levels\\L2Data\\Blind2.DUN", 0);
 				LoadMapObjs(v9, 2 * setpc_x, 2 * setpc_y);
 				mem_free_dbg(v9);
-			}
-			else
-			{
-				v8 = v16;
 			}
 			//_LOBYTE(v10) = QuestStatus(9);
 			if ( QuestStatus(9) )
@@ -1598,10 +1578,6 @@ void __fastcall InitObjects(int a1)
 				AddObject(OBJ_PEDISTAL, 2 * setpc_x + 25, 2 * setpc_y + 32);
 			}
 			InitRndBarrels();
-		}
-		else
-		{
-			v8 = v16;
 		}
 		if ( leveltype == DTYPE_CAVES )
 		{
@@ -1657,9 +1633,9 @@ void __fastcall InitObjects(int a1)
 // 679660: using guessed type char gbMaxPlayers;
 // 67D7C0: using guessed type int InitObjFlag;
 
-void __fastcall SetMapObjects(char *pMap, int startx, int starty)
+void __fastcall SetMapObjects(unsigned char *pMap, int startx, int starty)
 {
-	char *v3; // esi
+	unsigned char *v3; // esi
 	int v6; // edi
 	int v7; // eax
 	int v8; // esi
@@ -1737,7 +1713,7 @@ void __fastcall SetMapObjects(char *pMap, int startx, int starty)
 			sprintf(filestr, "Objects\\%s.CEL", v16);
 			v17 = LoadFileInMem(filestr, 0);
 			v18 = numobjfiles++;
-			pObjCels[v18] = (int)v17;
+			pObjCels[v18] = v17;
 		}
 		++v15;
 	}
@@ -1776,7 +1752,7 @@ void __fastcall DeleteObject(int oi, int i)
 	v2 = nobjects - 1;
 	v3 = nobjects == 1;
 	v4 = nobjects - 1 < 0;
-	objectavail[-nobjects + 127] = oi; /* *(&object[0]._otype - nobjects) = oi; */
+	objectavail[-nobjects + MAXOBJECTS] = oi; /* *(&object[0]._otype - nobjects) = oi; */
 	nobjects = v2;
 	if ( !v4 && !v3 && i != v2 )
 		objectactive[i] = objectactive[v2];
@@ -1792,7 +1768,6 @@ void __fastcall SetupObject(int i, int x, int y, int ot)
 	int v9; // eax
 	int v10; // edx
 	int v11; // eax
-	int v12; // ecx
 	int v13; // eax
 	int v14; // eax
 
@@ -1812,13 +1787,11 @@ void __fastcall SetupObject(int i, int x, int y, int ot)
 	if ( v9 )
 	{
 		v10 = AllObjects[v5].oAnimDelay;
-		_LOBYTE(v6) = -110;
 		object[v4]._oAnimDelay = v10;
-		object[v4]._oAnimCnt = random(v6, v10);
+		object[v4]._oAnimCnt = random(146, v10);
 		v11 = AllObjects[v5].oAnimLen;
-		_LOBYTE(v12) = -110;
 		object[v4]._oAnimLen = v11;
-		v13 = random(v12, v11 - 1) + 1;
+		v13 = random(146, v11 - 1) + 1;
 	}
 	else
 	{
@@ -1877,7 +1850,7 @@ void __fastcall AddL1Door(int i, int x, int y, int ot)
 	{
 		v9 = v5 + y;
 		v7 = dPiece[0][v5 + y];
-		v8 = dPiece[-4][v5 + y]; // *(_DWORD *)&dflags[28][4 * v9 + 32]; /* check */
+		v8 = dPiece[-1][v5 + y]; // *(_DWORD *)&dflags[28][4 * v9 + 32]; /* check */
 	}
 	object[v4]._oVar4 = 0;
 	object[v4]._oVar1 = v7;
@@ -1900,13 +1873,11 @@ void __fastcall AddChest(int i, int t)
 	int v2; // edi
 	int v3; // esi
 	int v4; // esi
-	int v5; // ecx
 	int v6; // [esp-4h] [ebp-Ch]
 
 	v2 = t;
 	v3 = i;
-	_LOBYTE(i) = -109;
-	if ( !random(i, 2) )
+	if ( !random(147, 2) )
 		object[v3]._oAnimFrame += 3;
 	v4 = v3;
 	object[v4]._oRndSeed = GetRndSeed();
@@ -1932,8 +1903,7 @@ LABEL_9:
 			}
 			v6 = 4;
 LABEL_18:
-			_LOBYTE(v5) = -109;
-			object[v4]._oVar1 = random(v5, v6);
+			object[v4]._oVar1 = random(147, v6);
 			break;
 		case OBJ_TCHEST1:
 LABEL_22:
@@ -1949,8 +1919,7 @@ LABEL_22:
 		case OBJ_TCHEST3:
 			goto LABEL_9;
 	}
-	_LOBYTE(v5) = -109;
-	object[v4]._oVar2 = random(v5, 8);
+	object[v4]._oVar2 = random(147, 8);
 }
 // 5CF31D: using guessed type char setlevel;
 
@@ -1993,8 +1962,7 @@ void __fastcall AddSarc(int i)
 	v2 = -1 - i;
 	v3 = 112 * object[i]._ox;
 	dObject[0][v3 + object[v1]._oy - 1] = v2; /* dungeon[39][v3 + 39 + object[v1]._oy] = v2; */
-	_LOBYTE(v3) = -103;
-	object[v1]._oVar1 = random(v3, 10);
+	object[v1]._oVar1 = random(153, 10);
 	v4 = GetRndSeed();
 	v6 = __OFSUB__(object[v1]._oVar1, 8);
 	v5 = object[v1]._oVar1 - 8 < 0;
@@ -2052,9 +2020,7 @@ void __fastcall AddBarrel(int i)
 {
 	int v1; // esi
 	int v2; // eax
-	int v3; // ecx
 	int v4; // eax
-	int v5; // ecx
 	int v6; // eax
 	bool v7; // sf
 	unsigned char v8; // of
@@ -2062,12 +2028,10 @@ void __fastcall AddBarrel(int i)
 	v1 = i;
 	object[i]._oVar1 = 0;
 	v2 = GetRndSeed();
-	_LOBYTE(v3) = -107;
 	object[v1]._oRndSeed = v2;
-	v4 = random(v3, 10);
-	_LOBYTE(v5) = -107;
+	v4 = random(149, 10);
 	object[v1]._oVar2 = v4;
-	v6 = random(v5, 3);
+	v6 = random(149, 3);
 	v8 = __OFSUB__(object[v1]._oVar2, 8);
 	v7 = object[v1]._oVar2 - 8 < 0;
 	object[v1]._oVar3 = v6;
@@ -2112,13 +2076,11 @@ void __fastcall AddShrine(int i)
 	while ( v3 < 26 );
 	do
 	{
-		_LOBYTE(v4) = -106;
-		v6 = random((int)v4, 26);
+		v6 = random(150, 26);
 	}
 	while ( !slist[v6] );
-	_LOBYTE(v4) = -106;
 	object[v1]._oVar1 = v6;
-	if ( random((int)v4, 2) )
+	if ( random(150, 2) )
 	{
 		object[v1]._oAnimFrame = 12;
 		object[v1]._oAnimLen = 22;
@@ -2165,14 +2127,12 @@ void __fastcall AddDecap(int i)
 {
 	int v1; // esi
 	int v2; // eax
-	int v3; // ecx
 	int v4; // eax
 
 	v1 = i;
 	v2 = GetRndSeed();
-	_LOBYTE(v3) = -105;
 	object[v1]._oRndSeed = v2;
-	v4 = random(v3, 8);
+	v4 = random(151, 8);
 	object[v1]._oPreFlag = 1;
 	object[v1]._oAnimFrame = v4 + 1;
 }
@@ -2272,7 +2232,6 @@ void __fastcall GetRndObjLoc(int randarea, int *xx, int *yy)
 {
 	int *v3; // ebx
 	int v4; // eax
-	int v5; // ecx
 	int v6; // eax
 	int v7; // esi
 	bool v8; // eax
@@ -2291,11 +2250,9 @@ void __fastcall GetRndObjLoc(int randarea, int *xx, int *yy)
 LABEL_3:
 			if ( ++v10 > 1000 && v12 > 1 )
 				--v12;
-			_LOBYTE(randarea) = 0;
-			v4 = random(randarea, 112);
-			_LOBYTE(v5) = 0;
+			v4 = random(0, 112);
 			*v3 = v4;
-			v6 = random(v5, 112);
+			v6 = random(0, 112);
 			v7 = v6;
 			*yy = v6;
 			v8 = 0;
@@ -2330,7 +2287,7 @@ void __cdecl AddMushPatch()
 	int y; // [esp+0h] [ebp-8h]
 	int x; // [esp+4h] [ebp-4h]
 
-	if ( nobjects < 127 )
+	if ( nobjects < MAXOBJECTS )
 	{
 		i = objectavail[0];
 		GetRndObjLoc(5, &x, &y);
@@ -2361,12 +2318,12 @@ void __fastcall AddObject(int ot, int ox, int oy)
 
 	v3 = ox;
 	v4 = ot;
-	if ( nobjects < 127 )
+	if ( nobjects < MAXOBJECTS )
 	{
 		//v5 = 4 * nobjects;
 		v6 = objectavail[0];
 		objectactive[nobjects] = objectavail[0];
-		objectavail[0] = objectavail[-nobjects + 126]; /* double check */
+		objectavail[0] = objectavail[-nobjects + 126]; /* double check, MAXOBJECTS */
 		dObject[ox][oy] = v6 + 1;
 		SetupObject(v6, ox, oy, ot);
 		switch ( v4 )
@@ -2881,24 +2838,24 @@ void __fastcall Obj_BCrossDamage(int i)
 	int v4; // edx
 	char v5; // al
 	int v6; // ecx
-	int damage[5]; // [esp+4h] [ebp-18h]
+	int damage[4]; // [esp+4h] [ebp-18h]
 	int v8; // [esp+18h] [ebp-4h]
 
 	v1 = myplr;
 	v8 = i;
 	v2 = plr[myplr]._pmode == PM_DEATH;
-	damage[1] = 6;
-	damage[2] = 8;
-	damage[3] = 10;
-	damage[4] = 12;
+	damage[0] = 6;
+	damage[1] = 8;
+	damage[2] = 10;
+	damage[3] = 12;
 	if ( !v2 )
 	{
 		v3 = plr[v1]._pFireResist;
 		if ( v3 > 0 )
-			damage[(unsigned char)leveltype] -= v3 * damage[(unsigned char)leveltype] / 100;
+			damage[(unsigned char)leveltype-1] -= v3 * damage[(unsigned char)leveltype-1] / 100;
 		if ( plr[v1].WorldX == object[v8]._ox && plr[v1].WorldY == object[v8]._oy - 1 )
 		{
-			v4 = damage[(unsigned char)leveltype];
+			v4 = damage[(unsigned char)leveltype-1];
 			plr[v1]._pHitPoints -= v4;
 			plr[v1]._pHPBase -= v4;
 			if ( (signed int)(plr[v1]._pHitPoints & 0xFFFFFFC0) <= 0 )
@@ -3409,7 +3366,7 @@ void __fastcall OperateL1RDoor(int pnum, int oi, unsigned char sendflag)
 			ObjSetMicro(v5, v6, v7);
 			if ( object[v3]._oVar2 == 50 )
 			{
-				if ( dPiece[-4][v8] == 396 ) /* check *(_DWORD *)&dflags[28][4 * v8 + 32] == 396 ) */
+				if ( dPiece[-1][v8] == 396 ) /* check *(_DWORD *)&dflags[28][4 * v8 + 32] == 396 ) */
 					ObjSetMicro(v5 - 1, v6, 411);
 				else
 					ObjSetMicro(v5 - 1, v6, 50);
@@ -4778,9 +4735,8 @@ void __fastcall TryDisarm(int pnum, int i)
 	v4 = v3;
 	if ( object[v4]._oTrapFlag )
 	{
-		_LOBYTE(pnum) = -102;
 		v5 = 2 * plr[v2]._pDexterity - 5 * currlevel;
-		if ( random(pnum, 100) <= v5 )
+		if ( random(154, 100) <= v5 )
 		{
 			v6 = nobjects;
 			for ( j = 0; j < v6; ++j )
@@ -4823,7 +4779,6 @@ void __fastcall OperateShrine(int pnum, int i, int sType)
 	int v5; // eax
 	int v6; // ecx
 	int v7; // ecx
-	int v8; // ecx
 	int v9; // eax
 	int v10; // eax
 	int v11; // eax
@@ -4905,7 +4860,6 @@ void __fastcall OperateShrine(int pnum, int i, int sType)
 	int v87; // eax
 	int v88; // ebx
 	int v89; // eax
-	int v90; // ecx
 	int v91; // esi
 	int v92; // eax
 	int v93; // edx
@@ -4947,7 +4901,6 @@ void __fastcall OperateShrine(int pnum, int i, int sType)
 	int *v129; // ecx
 	int *v130; // eax
 	signed int v131; // ecx
-	int v132; // ecx
 	int v133; // eax
 	int v134; // ebx
 	int v135; // edi
@@ -4996,15 +4949,14 @@ void __fastcall OperateShrine(int pnum, int i, int sType)
 		v7 = object[v3]._oVar1;
 		switch ( v7 )
 		{
-			case 0:
+			case SHRINE_MYSTERIOUS:
 				if ( !v5 && arglist == myplr )
 				{
 					ModifyPlrStr(arglist, -1);
 					ModifyPlrMag(arglist, -1);
 					ModifyPlrDex(arglist, -1);
 					ModifyPlrVit(arglist, -1);
-					_LOBYTE(v8) = 0;
-					v9 = random(v8, 4);
+					v9 = random(0, 4);
 					if ( v9 )
 					{
 						v10 = v9 - 1;
@@ -5035,7 +4987,7 @@ void __fastcall OperateShrine(int pnum, int i, int sType)
 					goto LABEL_221;
 				}
 				return;
-			case 1:
+			case SHRINE_HIDDEN:
 				v12 = 0;
 				if ( v5 || arglist != myplr )
 					return;
@@ -5098,8 +5050,7 @@ void __fastcall OperateShrine(int pnum, int i, int sType)
 					while ( v20 );
 					if ( !v18 )
 						goto LABEL_47;
-					_LOBYTE(v7) = 0;
-					v21 = random(v7, 7);
+					v21 = random(0, 7);
 					v7 = v13 * 21720 + 368 * v21;
 					if ( *(int *)((char *)&plr[0].InvBody[0]._itype + v7) != -1 )
 					{
@@ -5125,7 +5076,7 @@ void __fastcall OperateShrine(int pnum, int i, int sType)
 LABEL_47:
 				_LOBYTE(v7) = 13;
 				goto LABEL_221;
-			case 2:
+			case SHRINE_GLOOMY:
 				if ( v5 )
 					return;
 				if ( arglist != myplr )
@@ -5172,7 +5123,7 @@ LABEL_47:
 					goto LABEL_73;
 				v7 = (int)&plr[v26].InvList[0]._iAC;
 				break;
-			case 3:
+			case SHRINE_WEIRD:
 				if ( v5 )
 					return;
 				if ( arglist != myplr )
@@ -5200,8 +5151,8 @@ LABEL_47:
 				}
 				_LOBYTE(v7) = 15;
 				goto LABEL_221;
-			case 4:
-			case 11:
+			case SHRINE_MAGICAL:
+			case SHRINE_MAGICAL2:
 				if ( v5 )
 					return;
 				AddMissile(
@@ -5219,7 +5170,7 @@ LABEL_47:
 					return;
 				_LOBYTE(v7) = 16;
 				goto LABEL_221;
-			case 5:
+			case SHRINE_STONE:
 				if ( v5 )
 					return;
 				if ( arglist != myplr )
@@ -5260,7 +5211,7 @@ LABEL_47:
 				while ( v44 );
 				v7 = 17;
 				goto LABEL_221;
-			case 6:
+			case SHRINE_RELIGIOUS:
 				if ( v5 )
 					return;
 				if ( arglist != myplr )
@@ -5298,7 +5249,7 @@ LABEL_47:
 				while ( v51 );
 				v7 = 18;
 				goto LABEL_221;
-			case 7:
+			case SHRINE_ENCHANTED:
 				if ( v5 || arglist != myplr )
 					return;
 				sfx_ida = 0;
@@ -5339,8 +5290,7 @@ LABEL_47:
 					while ( v59 <= 37 );
 					do
 					{
-						_LOBYTE(v7) = 0;
-						v60 = random(v7, 37);
+						v60 = random(0, 37);
 						v7 = v60;
 					}
 					while ( !(plr[v53]._pMemSpells[1] & ((unsigned __int64)((__int64)1 << v60) >> 32) | plr[v53]._pMemSpells[0] & (unsigned int)((__int64)1 << v60)) );
@@ -5352,7 +5302,7 @@ LABEL_47:
 				}
 				_LOBYTE(v7) = 19;
 				goto LABEL_221;
-			case 8:
+			case SHRINE_THAUMATURGIC:
 				for ( j = 0; j < nobjects; ++j )
 				{
 					v63 = objectactive[j];
@@ -5372,7 +5322,7 @@ LABEL_47:
 					goto LABEL_280;
 				_LOBYTE(v7) = 20;
 				goto LABEL_221;
-			case 9:
+			case SHRINE_FASCINATING:
 				if ( v5 || arglist != myplr )
 					return;
 				v7 = 21720 * arglist;
@@ -5411,7 +5361,7 @@ LABEL_47:
 				}
 				_LOBYTE(v7) = 21;
 				goto LABEL_221;
-			case 10:
+			case SHRINE_CRYPTIC:
 				if ( v5 )
 					return;
 				v77 = arglist;
@@ -5432,7 +5382,7 @@ LABEL_47:
 				plr[v77]._pMana = plr[v77]._pMaxMana;
 				plr[v77]._pManaBase = plr[v77]._pMaxManaBase;
 				goto LABEL_221;
-			case 12:
+			case SHRINE_ELDRITCH:
 				if ( v5 )
 					return;
 				if ( arglist != myplr )
@@ -5508,14 +5458,14 @@ LABEL_47:
 				while ( !v56 );
 				_LOBYTE(v7) = 24;
 				goto LABEL_221;
-			case 13:
+			case SHRINE_EERIE:
 				if ( v5 || arglist != myplr )
 					return;
 				ModifyPlrMag(arglist, 2);
 				CheckStats(arglist);
 				_LOBYTE(v7) = 25;
 				goto LABEL_221;
-			case 14:
+			case SHRINE_DIVINE:
 				if ( v5 || arglist != myplr )
 					return;
 				v85 = object[v3]._ox;
@@ -5538,17 +5488,15 @@ LABEL_47:
 				plr[v87]._pHPBase = v7;
 				_LOBYTE(v7) = 26;
 				goto LABEL_221;
-			case 15:
+			case SHRINE_HOLY:
 				if ( v5 )
 					return;
 				v88 = 0;
 				do
 				{
-					_LOBYTE(v7) = -97;
-					v89 = random(v7, 112);
-					_LOBYTE(v90) = -97;
+					v89 = random(159, 112);
 					v91 = v89;
-					v92 = random(v90, 112);
+					v92 = random(159, 112);
 					if ( ++v88 > 12544 )
 						break;
 					v7 = v92 + 112 * v91;
@@ -5570,7 +5518,7 @@ LABEL_47:
 					return;
 				_LOBYTE(v7) = 27;
 				goto LABEL_221;
-			case 16:
+			case SHRINE_SACRED:
 				if ( v5 || arglist != myplr )
 					return;
 				v7 = 21720 * arglist;
@@ -5609,7 +5557,7 @@ LABEL_47:
 				}
 				_LOBYTE(v7) = 28;
 				goto LABEL_221;
-			case 17:
+			case SHRINE_SPIRITUAL:
 				if ( v5 || arglist != myplr )
 					return;
 				sfx_idd = 0;
@@ -5618,8 +5566,7 @@ LABEL_47:
 				{
 					if ( !plr[v106].InvGrid[sfx_idd] )
 					{
-						_LOBYTE(v7) = -96;
-						v107 = 5 * (unsigned char)leveltype + random(v7, 10 * (unsigned char)leveltype);
+						v107 = 5 * (unsigned char)leveltype + random(160, 10 * (unsigned char)leveltype);
 						v108 = plr[v106]._pNumInv;
 						v109 = v106 * 21720 + 368 * v108;
 						qmemcpy((char *)plr[0].InvList + v109, &golditem, 0x170u);
@@ -5635,7 +5582,7 @@ LABEL_47:
 				while ( sfx_idd < 40 );
 				_LOBYTE(v7) = 29;
 				goto LABEL_221;
-			case 18:
+			case SHRINE_SPOOKY:
 				if ( v5 )
 					return;
 				if ( arglist == myplr )
@@ -5651,7 +5598,7 @@ LABEL_47:
 				plr[v110]._pMana = plr[v110]._pMaxMana;
 				plr[v110]._pManaBase = plr[v110]._pMaxManaBase;
 				goto LABEL_280;
-			case 19:
+			case SHRINE_ABANDONED:
 				if ( v5 || arglist != myplr )
 					return;
 				ModifyPlrDex(arglist, 2);
@@ -5660,7 +5607,7 @@ LABEL_47:
 					goto LABEL_280;
 				_LOBYTE(v7) = 32;
 				goto LABEL_221;
-			case 20:
+			case SHRINE_CREEPY:
 				if ( v5 || arglist != myplr )
 					return;
 				ModifyPlrStr(arglist, 2);
@@ -5669,7 +5616,7 @@ LABEL_47:
 					goto LABEL_280;
 				_LOBYTE(v7) = 33;
 				goto LABEL_221;
-			case 21:
+			case SHRINE_QUIET:
 				if ( v5 || arglist != myplr )
 					return;
 				ModifyPlrVit(arglist, 2);
@@ -5678,7 +5625,7 @@ LABEL_47:
 					goto LABEL_280;
 				_LOBYTE(v7) = 34;
 				goto LABEL_221;
-			case 22:
+			case SHRINE_SECLUDED:
 				if ( v5 )
 					return;
 				if ( arglist != myplr )
@@ -5700,7 +5647,7 @@ LABEL_47:
 				while ( v7 < 40 );
 				_LOBYTE(v7) = 35;
 				goto LABEL_221;
-			case 23:
+			case SHRINE_ORNATE:
 				if ( v5 || arglist != myplr )
 					return;
 				v7 = 21720 * arglist;
@@ -5739,7 +5686,7 @@ LABEL_47:
 				}
 				_LOBYTE(v7) = 36;
 				goto LABEL_221;
-			case 24:
+			case SHRINE_GLIMMERING:
 				if ( v5 || arglist != myplr )
 					return;
 				v125 = arglist;
@@ -5778,7 +5725,7 @@ LABEL_47:
 				while ( v131 );
 				v7 = 37;
 				goto LABEL_221;
-			case 25:
+			case SHRINE_TAINTED:
 				if ( v5 )
 					return;
 				if ( arglist == myplr )
@@ -5788,8 +5735,7 @@ LABEL_47:
 				}
 				_LOBYTE(v7) = 39;
 				InitDiabloMsg(v7);
-				_LOBYTE(v132) = -101;
-				v133 = random(v132, 4);
+				v133 = random(155, 4);
 				v134 = 1;
 				v135 = 2 * (v133 == 1) - 1;
 				if ( v133 == 2 || (v134 = -1, v133 != 3) )
@@ -5855,7 +5801,6 @@ void __fastcall OperateSkelBook(int pnum, int i, unsigned char sendmsg)
 	unsigned short v3; // di
 	int v4; // esi
 	bool v5; // zf
-	int v6; // ecx
 	int v7; // eax
 	int v8; // ecx
 	int v9; // edx
@@ -5874,8 +5819,7 @@ void __fastcall OperateSkelBook(int pnum, int i, unsigned char sendmsg)
 		if ( v5 )
 		{
 			SetRndSeed(object[v4]._oRndSeed);
-			_LOBYTE(v6) = -95;
-			v7 = random(v6, 5);
+			v7 = random(161, 5);
 			v8 = object[v4]._ox;
 			v9 = object[v4]._oy;
 			if ( v7 )
@@ -5962,7 +5906,6 @@ void __fastcall OperateArmorStand(int pnum, int i, unsigned char sendmsg)
 	int v4; // esi
 	int *v5; // eax
 	bool v6; // zf
-	int v7; // ecx
 	unsigned char v8; // al
 	int v9; // [esp-10h] [ebp-20h]
 	int v10; // [esp-8h] [ebp-18h]
@@ -5980,8 +5923,7 @@ void __fastcall OperateArmorStand(int pnum, int i, unsigned char sendmsg)
 		if ( v6 )
 		{
 			SetRndSeed(object[v4]._oRndSeed);
-			_LOBYTE(v7) = 0;
-			v8 = random(v7, 2);
+			v8 = random(0, 2);
 			if ( currlevel > 5u )
 			{
 				if ( currlevel >= 6u && currlevel <= 9u )
@@ -6081,7 +6023,6 @@ bool __fastcall OperateFountains(int pnum, int i)
 	int v3; // esi
 	int v4; // edi
 	bool v5; // bp
-	int v6; // ecx
 	signed int v7; // ebx
 	int v8; // ebp
 	int v10; // eax
@@ -6202,8 +6143,7 @@ LABEL_38:
 					return 0;
 				do
 				{
-					_LOBYTE(v6) = 0;
-					v10 = random(v6, 4);
+					v10 = random(0, 4);
 					v11 = v10;
 					if ( v10 != v7 )
 					{
@@ -6258,7 +6198,6 @@ void __fastcall OperateWeaponRack(int pnum, int i, unsigned char sendmsg)
 {
 	unsigned short v3; // di
 	int v4; // esi
-	int v5; // ecx
 	int v6; // eax
 	int v7; // eax
 	int v8; // eax
@@ -6275,8 +6214,7 @@ void __fastcall OperateWeaponRack(int pnum, int i, unsigned char sendmsg)
 	if ( !object[i]._oSelFlag )
 		return;
 	SetRndSeed(object[v4]._oRndSeed);
-	_LOBYTE(v5) = 0;
-	v6 = random(v5, 4);
+	v6 = random(0, 4);
 	if ( v6 )
 	{
 		v7 = v6 - 1;
@@ -6868,9 +6806,8 @@ void __fastcall BreakObject(int pnum, int oi)
 	else
 	{
 		v4 = pnum;
-		_LOBYTE(pnum) = -93;
 		v5 = plr[v2]._pIMinDam;
-		v6 = v5 + random(pnum, plr[v2]._pIMaxDam - v5 + 1);
+		v6 = v5 + random(163, plr[v2]._pIMaxDam - v5 + 1);
 		v7 = plr[v4]._pIBonusDamMod + plr[v4]._pDamageMod + v6 * plr[v4]._pIBonusDam / 100 + v6;
 	}
 	v8 = object[v3]._otype;

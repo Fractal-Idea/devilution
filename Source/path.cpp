@@ -20,10 +20,11 @@ PATHNODE *pnode_tblptr[300];
 PATHNODE *path_2_nodes;
 
 // for iterating over the 8 possible movement directions
-char pathxdir[8] = { -1, -1, 1, 1, -1, 0, 1, 0 };
-char pathydir[8] = { -1, 1, -1, 1, 0, -1, 0, 1 };
+const char pathxdir[8] = { -1, -1, 1, 1, -1, 0, 1, 0 };
+const char pathydir[8] = { -1, 1, -1, 1, 0, -1, 0, 1 };
 
-/* rdata */
+/* data */
+
 /* each step direction is assigned a number like this:
  *       dx
  *     -1 0 1
@@ -38,7 +39,7 @@ char path_directions[9] = { 5, 1, 6, 2, 0, 3, 8, 4, 7 };
  * check that each step is a valid position. Store the step directions (see
  * path_directions) in path, which must have room for 24 steps
  */
-int __fastcall FindPath(bool (__fastcall *PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx, int dy, char *path)
+int __fastcall FindPath(BOOL (__fastcall *PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx, int dy, char *path)
 {
 	PATHNODE *path_start; // esi
 	char initial_h; // al
@@ -234,7 +235,7 @@ LABEL_13:
  *
  * return 0 if we ran out of preallocated nodes to use, else 1
  */
-int __fastcall path_get_path(bool (__fastcall *PosOk)(int, int, int), int PosOkArg, PATHNODE *pPath, int x, int y)
+int __fastcall path_get_path(BOOL (__fastcall *PosOk)(int, int, int), int PosOkArg, PATHNODE *pPath, int x, int y)
 {
 	int dir; // eax
 	int dx; // esi

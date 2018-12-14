@@ -6,48 +6,48 @@ short level_frame_types[2048];
 int themeCount;
 char nTransTable[2049];
 //int dword_52D204;
-int dMonster[112][112];
+int dMonster[MAXDUNX][MAXDUNY];
 char dungeon[40][40];
-char dObject[112][112];
+char dObject[MAXDUNX][MAXDUNY];
 void *pSpeedCels;
 int nlevel_frames; // weak
 char pdungeon[40][40];
-char dDead[112][112];
-short dpiece_defs_map_1[16][112][112];
-char dTransVal2[112][112];
+char dDead[MAXDUNX][MAXDUNY];
+short dpiece_defs_map_1[16][MAXDUNX][MAXDUNY];
+char dTransVal2[MAXDUNX][MAXDUNY];
 char TransVal; // weak
 int dword_5A5594;
 char dflags[40][40];
-int dPiece[112][112];
-char dTransVal[112][112];
+int dPiece[MAXDUNX][MAXDUNY];
+char dTransVal[MAXDUNX][MAXDUNY];
 int setloadflag_2; // weak
-Tile tile_defs[1024];
+int tile_defs[2048];
 void *pMegaTiles;
 void *pLevelPieces;
 int gnDifficulty; // idb
 char block_lvid[2049];
 //char byte_5B78EB;
-char dung_map[112][112];
+char dung_map[MAXDUNX][MAXDUNY];
 char nTrapTable[2049];
 char leveltype; // weak
 unsigned char currlevel; // idb
 char TransList[256];
-char nSolidTable[2049];
-int level_frame_count[2049];
+UCHAR nSolidTable[2049];
+int level_frame_count[2048];
 ScrollStruct ScrollInfo;
 void *pDungeonCels;
 int speed_cel_frame_num_from_light_index_frame_num[16][128];
-THEME_LOC themeLoc[50];
-char dPlayer[112][112];
+THEME_LOC themeLoc[MAXTHEMES];
+char dPlayer[MAXDUNX][MAXDUNY];
 int dword_5C2FF8; // weak
 int dword_5C2FFC; // weak
 int scr_pix_width; // weak
 int scr_pix_height; // weak
-char dArch[112][112];
+char dArch[MAXDUNX][MAXDUNY];
 char nBlockTable[2049];
 void *level_special_cel;
-char dFlags[112][112];
-char dItem[112][112];
+char dFlags[MAXDUNX][MAXDUNY];
+char dItem[MAXDUNX][MAXDUNY];
 char setlvlnum; // weak
 int level_frame_sizes[2048];
 char nMissileTable[2049];
@@ -64,10 +64,10 @@ int setpc_x; // idb
 int ViewX; // idb
 int ViewY; // idb
 int setpc_y; // idb
-char dMissile[112][112];
+char dMissile[MAXDUNX][MAXDUNY];
 int dminx; // weak
 int dminy; // weak
-short dpiece_defs_map_2[16][112][112];
+short dpiece_defs_map_2[16][MAXDUNX][MAXDUNY];
 
 void __cdecl FillSolidBlockTbls()
 {
@@ -78,11 +78,11 @@ void __cdecl FillSolidBlockTbls()
 	unsigned char v4; // bl
 	int size; // [esp+8h] [ebp-4h]
 
-	memset(nBlockTable, 0, 0x801u);
-	memset(nSolidTable, 0, 0x801u);
-	memset(nTransTable, 0, 0x801u);
-	memset(nMissileTable, 0, 0x801u);
-	memset(nTrapTable, 0, 0x801u);
+	memset(nBlockTable, 0, sizeof(nBlockTable));
+	memset(nSolidTable, 0, sizeof(nSolidTable));
+	memset(nTransTable, 0, sizeof(nTransTable));
+	memset(nMissileTable, 0, sizeof(nMissileTable));
+	memset(nTrapTable, 0, sizeof(nTrapTable));
 	if ( leveltype != DTYPE_TOWN )
 	{
 		switch ( leveltype )
@@ -203,10 +203,10 @@ void __cdecl gendung_418D91()
 
 	v0 = 0;
 	memset(level_frame_types, 0, sizeof(level_frame_types));
-	memset(level_frame_count, 0, 0x2000u);
+	memset(level_frame_count, 0, sizeof(level_frame_count));
 	do
 	{
-		*((_DWORD *)&tile_defs[0].top + v0) = v0;
+		tile_defs[v0] = v0;
 		++v0;
 	}
 	while ( v0 < 2048 );
@@ -351,7 +351,7 @@ LABEL_36:
 		{
 			v24 = v54;
 			v25 = level_frame_types[v54] == 4096;
-			v62 = *((_DWORD *)&tile_defs[0].top + v54);
+			v62 = tile_defs[v54];
 			(*v49)[0] = v62;
 			if ( v25 )
 			{
@@ -463,7 +463,7 @@ LABEL_66:
 						{
 							do
 							{
-								if ( (v43 & 0xFFF) == *((_DWORD *)&tile_defs[0].top + v44) )
+								if ( (v43 & 0xFFF) == tile_defs[v44] )
 								{
 									v45 = v44 + level_frame_types[v44];
 									v44 = v22;
@@ -535,12 +535,12 @@ void __fastcall gendung_4191FB(int a1, int a2)
 	v2 *= 4;
 	v5 = *v3;
 	*v3 = *(int *)((char *)level_frame_count + v2);
-	v6 = (int *)((char *)tile_defs + 4 * a1);
+	v6 = &tile_defs[a1];
 	*(int *)((char *)level_frame_count + v2) = v5;
 	v7 = &level_frame_sizes[a1];
 	v8 = *v6;
-	*v6 = *(_DWORD *)((char *)&tile_defs[0].top + v2);
-	*(_DWORD *)((char *)&tile_defs[0].top + v2) = v8;
+	*v6 = *(int *)((char *)tile_defs + v2);
+	*(int *)((char *)tile_defs + v2) = v8;
 	v9 = &level_frame_types[a1];
 	_LOWORD(v6) = *v9;
 	*v9 = *v4;
@@ -674,8 +674,8 @@ void __cdecl SetDungeonMicros()
 
 void __cdecl DRLG_InitTrans()
 {
-	memset(dung_map, 0, 0x3100u);
-	memset(TransList, 0, 0x100u);
+	memset(dung_map, 0, sizeof(dung_map));
+	memset(TransList, 0, sizeof(TransList));
 	TransVal = 1;
 }
 // 5A5590: using guessed type char TransVal;
@@ -913,8 +913,8 @@ bool __fastcall DRLG_WillThemeRoomFit(int floor, int x, int y, int minSize, int 
 		return 0;
 	if ( !SkipThemeRoom(x, y) )
 		return 0;
-	memset(xArray, 0, 0x50u);
-	memset(yArray, 0, 0x50u);
+	memset(xArray, 0, sizeof(xArray));
+	memset(yArray, 0, sizeof(yArray));
 	if ( maxSize > 0 )
 	{
 		v10 = 40 * v7;
@@ -1183,8 +1183,7 @@ LABEL_53:
 	}
 	if ( leveltype == DTYPE_CATACOMBS )
 	{
-		_LOBYTE(v5) = 0;
-		v13 = random(v5, 2);
+		v13 = random(0, 2);
 		if ( v13 )
 		{
 			if ( v13 == 1 )
@@ -1205,8 +1204,7 @@ LABEL_53:
 	}
 	if ( leveltype == DTYPE_CAVES )
 	{
-		_LOBYTE(v5) = 0;
-		v14 = random(v5, 2);
+		v14 = random(0, 2);
 		if ( v14 )
 		{
 			if ( v14 == 1 )
@@ -1227,8 +1225,7 @@ LABEL_53:
 	}
 	if ( leveltype == DTYPE_HELL )
 	{
-		_LOBYTE(v5) = 0;
-		v15 = random(v5, 2);
+		v15 = random(0, 2);
 		if ( v15 )
 		{
 			if ( v15 == 1 )
@@ -1258,16 +1255,12 @@ LABEL_53:
 void __fastcall DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int freq, int rndSize)
 {
 	int v5; // ebx
-	int v6; // ecx
 	//int v7; // eax
 	int v8; // esi
 	int v9; // edi
 	int v10; // eax
-	int v11; // ecx
 	int v12; // eax
-	int v13; // ecx
 	int v14; // eax
-	int v15; // ecx
 	int v16; // eax
 	int v17; // edi
 	int v18; // esi
@@ -1286,7 +1279,7 @@ void __fastcall DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int fr
 	maxSize2 = maxSize;
 	minSize2 = minSize;
 	themeCount = 0;
-	memset(themeLoc, 0, 0x14u);
+	memset(themeLoc, 0, sizeof(*themeLoc));
 	do
 	{
 		x = 0;
@@ -1296,8 +1289,7 @@ void __fastcall DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int fr
 		{
 			if ( *v24 == floor )
 			{
-				_LOBYTE(v6) = 0;
-				if ( !random(v6, freq) )
+				if ( !random(0, freq) )
 				{
 					//_LOBYTE(v7) = DRLG_WillThemeRoomFit(floor, x, v5, minSize2, maxSize2, &width, &height);
 					if ( DRLG_WillThemeRoomFit(floor, x, v5, minSize2, maxSize2, &width, &height) )
@@ -1306,16 +1298,12 @@ void __fastcall DRLG_PlaceThemeRooms(int minSize, int maxSize, int floor, int fr
 						{
 							v8 = minSize2 - 2;
 							v9 = maxSize2 - 2;
-							_LOBYTE(v6) = 0;
-							v10 = random(v6, width - (minSize2 - 2) + 1);
-							_LOBYTE(v11) = 0;
-							v12 = minSize2 - 2 + random(v11, v10);
+							v10 = random(0, width - (minSize2 - 2) + 1);
+							v12 = minSize2 - 2 + random(0, v10);
 							if ( v12 < minSize2 - 2 || (width = v12, v12 > v9) )
 								width = minSize2 - 2;
-							_LOBYTE(v13) = 0;
-							v14 = random(v13, height - v8 + 1);
-							_LOBYTE(v15) = 0;
-							v16 = v8 + random(v15, v14);
+							v14 = random(0, height - v8 + 1);
+							v16 = v8 + random(0, v14);
 							if ( v16 < v8 || v16 > v9 )
 								v16 = minSize2 - 2;
 							height = v16;
